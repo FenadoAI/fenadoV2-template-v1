@@ -3,8 +3,8 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
-const BACKEND_URL = process.env.MY_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API = `${API_BASE}/api`;
 
 const Home = () => {
   const helloWorldApi = async () => {

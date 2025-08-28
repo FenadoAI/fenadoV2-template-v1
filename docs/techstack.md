@@ -107,8 +107,7 @@ import requests
 import json
 from datetime import datetime
 
-BACKEND_URL = "https://your-backend-url.com"
-API_BASE = f"{BACKEND_URL}/api"
+API_BASE = "https://your-backend-url.com/api"  # Replace with your actual backend API URL
 
 class BackendTester:
     def __init__(self):

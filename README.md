@@ -18,6 +18,10 @@ bun start
 Backend: Create `.env` with `MONGO_URL`, `DB_NAME`, `JWT_SECRET_KEY`  
 Frontend: Uses `REACT_APP_API_URL` (defaults to http://localhost:8000)
 
+### Frontend Environment Variables
+- `REACT_APP_API_URL`: Backend API URL (default: http://localhost:8000)
+- For production: Set to your deployed backend URL (e.g., https://api.yourdomain.com)
+
 ## Test
 ```bash
 python backend/test_api.py
