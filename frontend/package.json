@@ -55,7 +55,7 @@
     "zod": "^3.24.4"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "nodemon --exec \"craco start\" --watch src --watch public --watch .env --watch package.json --watch craco.config.js --watch tailwind.config.js",
     "build": "craco build",
     "test": "craco test"
   },
@@ -80,6 +80,7 @@
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.4",
     "globals": "15.15.0",
+    "nodemon": "^3.1.9",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17"
   }
