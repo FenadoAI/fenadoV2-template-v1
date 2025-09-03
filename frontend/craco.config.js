@@ -43,4 +43,9 @@ module.exports = {
       return webpackConfig;
     },
   },
+  devServer: {
+    client: {
+      overlay: false,
+    },
+  },
 };
