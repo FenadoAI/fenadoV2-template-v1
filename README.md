@@ -24,5 +24,9 @@ Frontend: Uses `REACT_APP_API_URL` (defaults to http://localhost:8000)
 
 ## Test
 ```bash
-python backend/test_api.py
+# Test AI agents
+cd backend && python tests/test_agents.py
+
+# Test backend API (if server is running)
+cd backend && python tests/test_api.py
 ```

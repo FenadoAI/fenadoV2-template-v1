@@ -3,6 +3,9 @@
 ## Backend
 FastAPI, Python 3.8+, Motor (AsyncIOMotorClient), MongoDB, Pydantic
 
+### AI Agents
+Extensible AI agents library with LangChain and MCP support for building intelligent services. See [AI Agents Documentation](./aiagent.md) for detailed implementation guide.
+
 ### Installed Packages
 fastapi==0.110.1, uvicorn==0.25.0, motor==3.3.1, pymongo==4.5.0, pydantic>=2.6.4, email-validator>=2.2.0, python-jose>=3.3.0, passlib>=1.7.4, pyjwt>=2.10.1, python-dotenv>=1.0.1, requests>=2.31.0, cryptography>=42.0.8, bcrypt
 
@@ -151,4 +154,4 @@ MONGO_URL, DB_NAME, JWT_SECRET_KEY, CORS_ORIGINS
 ## Run Commands
 Backend: `uvicorn server:app --reload`
 Frontend: `bun start`
-Tests: `python test_api.py`
+Tests: `cd backend && python tests/test_agents.py` - See [HOW_TO_TEST.md](../HOW_TO_TEST.md) for testing patterns
