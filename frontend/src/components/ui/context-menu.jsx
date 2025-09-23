@@ -87,22 +87,35 @@ const ContextMenuCheckboxItem = React.forwardRef(({ className, children, checked
 ContextMenuCheckboxItem.displayName =
   ContextMenuPrimitive.CheckboxItem.displayName
 
-const ContextMenuRadioItem = React.forwardRef(({ className, children, ...props }, ref) => (
-  <ContextMenuPrimitive.RadioItem
-    ref={ref}
-    className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className
-    )}
-    {...props}>
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <ContextMenuPrimitive.ItemIndicator>
-        <Circle className="h-4 w-4 fill-current" />
-      </ContextMenuPrimitive.ItemIndicator>
-    </span>
-    {children}
-  </ContextMenuPrimitive.RadioItem>
-))
+const ContextMenuRadioItem = React.forwardRef(({ className, children, value, ...props }, ref) => {
+  // Handle empty string values gracefully
+  let safeValue = value;
+  if (value === "") {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn("ContextMenuRadioItem: value prop cannot be an empty string. Using fallback value to prevent UI crash.");
+    }
+    // Generate a fallback value based on children or a random string
+    safeValue = typeof children === 'string' ? `context-radio-${children.replace(/\s+/g, '-').toLowerCase()}` : `context-radio-fallback-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  return (
+    <ContextMenuPrimitive.RadioItem
+      ref={ref}
+      className={cn(
+        "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className
+      )}
+      value={safeValue}
+      {...props}>
+      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <ContextMenuPrimitive.ItemIndicator>
+          <Circle className="h-4 w-4 fill-current" />
+        </ContextMenuPrimitive.ItemIndicator>
+      </span>
+      {children}
+    </ContextMenuPrimitive.RadioItem>
+  );
+})
 ContextMenuRadioItem.displayName = ContextMenuPrimitive.RadioItem.displayName
 
 const ContextMenuLabel = React.forwardRef(({ className, inset, ...props }, ref) => (

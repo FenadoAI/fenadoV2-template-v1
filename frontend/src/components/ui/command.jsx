@@ -79,15 +79,30 @@ const CommandSeparator = React.forwardRef(({ className, ...props }, ref) => (
 ))
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName
 
-const CommandItem = React.forwardRef(({ className, ...props }, ref) => (
-  <CommandPrimitive.Item
-    ref={ref}
-    className={cn(
-      "relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
-      className
-    )}
-    {...props} />
-))
+const CommandItem = React.forwardRef(({ className, value, children, ...props }, ref) => {
+  // Handle empty string values gracefully
+  let safeValue = value;
+  if (value === "") {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn("CommandItem: value prop cannot be an empty string. Using fallback value to prevent UI crash.");
+    }
+    // Generate a fallback value based on children or a random string
+    safeValue = typeof children === 'string' ? `cmd-${children.replace(/\s+/g, '-').toLowerCase()}` : `cmd-fallback-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  return (
+    <CommandPrimitive.Item
+      ref={ref}
+      className={cn(
+        "relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+        className
+      )}
+      value={safeValue}
+      {...props}>
+      {children}
+    </CommandPrimitive.Item>
+  );
+})
 
 CommandItem.displayName = CommandPrimitive.Item.displayName
 

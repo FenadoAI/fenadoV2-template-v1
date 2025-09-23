@@ -22,7 +22,17 @@ const ToggleGroup = React.forwardRef(({ className, variant, size, children, ...p
 
 ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName
 
-const ToggleGroupItem = React.forwardRef(({ className, children, variant, size, ...props }, ref) => {
+const ToggleGroupItem = React.forwardRef(({ className, children, variant, size, value, ...props }, ref) => {
+  // Handle empty string values gracefully
+  let safeValue = value;
+  if (value === "") {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn("ToggleGroupItem: value prop cannot be an empty string. Using fallback value to prevent UI crash.");
+    }
+    // Generate a fallback value based on children or a random string
+    safeValue = typeof children === 'string' ? `toggle-${children.replace(/\s+/g, '-').toLowerCase()}` : `toggle-fallback-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
   const context = React.useContext(ToggleGroupContext)
 
   return (
@@ -32,6 +42,7 @@ const ToggleGroupItem = React.forwardRef(({ className, children, variant, size, 
         variant: context.variant || variant,
         size: context.size || size,
       }), className)}
+      value={safeValue}
       {...props}>
       {children}
     </ToggleGroupPrimitive.Item>

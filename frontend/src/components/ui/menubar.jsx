@@ -132,22 +132,35 @@ const MenubarCheckboxItem = React.forwardRef(({ className, children, checked, ..
 ))
 MenubarCheckboxItem.displayName = MenubarPrimitive.CheckboxItem.displayName
 
-const MenubarRadioItem = React.forwardRef(({ className, children, ...props }, ref) => (
-  <MenubarPrimitive.RadioItem
-    ref={ref}
-    className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className
-    )}
-    {...props}>
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <MenubarPrimitive.ItemIndicator>
-        <Circle className="h-4 w-4 fill-current" />
-      </MenubarPrimitive.ItemIndicator>
-    </span>
-    {children}
-  </MenubarPrimitive.RadioItem>
-))
+const MenubarRadioItem = React.forwardRef(({ className, children, value, ...props }, ref) => {
+  // Handle empty string values gracefully
+  let safeValue = value;
+  if (value === "") {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn("MenubarRadioItem: value prop cannot be an empty string. Using fallback value to prevent UI crash.");
+    }
+    // Generate a fallback value based on children or a random string
+    safeValue = typeof children === 'string' ? `menubar-radio-${children.replace(/\s+/g, '-').toLowerCase()}` : `menubar-radio-fallback-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  return (
+    <MenubarPrimitive.RadioItem
+      ref={ref}
+      className={cn(
+        "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className
+      )}
+      value={safeValue}
+      {...props}>
+      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <MenubarPrimitive.ItemIndicator>
+          <Circle className="h-4 w-4 fill-current" />
+        </MenubarPrimitive.ItemIndicator>
+      </span>
+      {children}
+    </MenubarPrimitive.RadioItem>
+  );
+})
 MenubarRadioItem.displayName = MenubarPrimitive.RadioItem.displayName
 
 const MenubarLabel = React.forwardRef(({ className, inset, ...props }, ref) => (

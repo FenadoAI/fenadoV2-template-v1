@@ -79,22 +79,35 @@ const SelectLabel = React.forwardRef(({ className, ...props }, ref) => (
 ))
 SelectLabel.displayName = SelectPrimitive.Label.displayName
 
-const SelectItem = React.forwardRef(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className
-    )}
-    {...props}>
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-      <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
-      </SelectPrimitive.ItemIndicator>
-    </span>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-  </SelectPrimitive.Item>
-))
+const SelectItem = React.forwardRef(({ className, children, value, ...props }, ref) => {
+  // Handle empty string values gracefully
+  let safeValue = value;
+  if (value === "") {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn("SelectItem: value prop cannot be an empty string. Using fallback value to prevent UI crash. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.");
+    }
+    // Generate a fallback value based on children or a random string
+    safeValue = typeof children === 'string' ? `fallback-${children.replace(/\s+/g, '-').toLowerCase()}` : `fallback-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  return (
+    <SelectPrimitive.Item
+      ref={ref}
+      className={cn(
+        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className
+      )}
+      value={safeValue}
+      {...props}>
+      <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+        <SelectPrimitive.ItemIndicator>
+          <Check className="h-4 w-4" />
+        </SelectPrimitive.ItemIndicator>
+      </span>
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  );
+})
 SelectItem.displayName = SelectPrimitive.Item.displayName
 
 const SelectSeparator = React.forwardRef(({ className, ...props }, ref) => (
