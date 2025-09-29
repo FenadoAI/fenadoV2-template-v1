@@ -4,10 +4,20 @@
 FastAPI, Python 3.8+, Motor (AsyncIOMotorClient), MongoDB, Pydantic
 
 ### AI Agents
-Extensible AI agents library with LangChain and MCP support for building intelligent services. See [AI Agents Documentation](./aiagent.md) for detailed implementation guide.
+Extensible AI agents built with **LangGraph** and **MCP (Model Context Protocol)** for building verified, intelligent services. Features real-time web search, image generation with HTTP verification, and structured JSON output. See [AI Agents Documentation](./aiagent.md) for detailed implementation guide.
+
+**Key Features:**
+- LangGraph-powered agent orchestration
+- MCP tool integration with verification
+- HTTP validation for generated content
+- Structured output with Pydantic
+- SearchAgent, ImageAgent, ChatAgent
 
 ### Installed Packages
 fastapi==0.110.1, uvicorn==0.25.0, motor==3.3.1, pymongo==4.5.0, pydantic>=2.6.4, email-validator>=2.2.0, python-jose>=3.3.0, passlib>=1.7.4, pyjwt>=2.10.1, python-dotenv>=1.0.1, requests>=2.31.0, cryptography>=42.0.8, bcrypt
+
+**AI Agent Packages:**
+langgraph>=0.6.7, langgraph-checkpoint>=2.1.1, langgraph-prebuilt>=0.6.4, langchain-core>=0.3.76, langchain-openai>=0.3.33, langchain-mcp-adapters>=0.1.9
 
 ### API Structure Pattern
 ```python
@@ -106,43 +116,17 @@ export function MyComponent() {
 
 ## Test Pattern
 ```python
-import requests
-import json
-from datetime import datetime
+import pytest
+from starlette.testclient import TestClient
 
-API_BASE = "https://your-backend-url.com/api"  # Replace with your actual backend API URL
+from server import app
 
-class BackendTester:
-    def __init__(self):
-        self.session = requests.Session()
-        self.session.headers.update({'Content-Type': 'application/json'})
-        self.test_results = []
-        
-    def log_test(self, test_name: str, success: bool, details: str = ""):
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}")
-        if details:
-            print(f"   Details: {details}")
-    
-    def test_create_item(self):
-        payload = {"name": "Test Item"}
-        response = self.session.post(f"{API_BASE}/items", json=payload)
-        
-        if response.status_code == 200:
-            self.log_test("Create Item", True, f"Created: {response.json()}")
-            return True
-        else:
-            self.log_test("Create Item", False, f"Status: {response.status_code}")
-            return False
-    
-    def run_all_tests(self):
-        print("🚀 Starting API Tests")
-        self.test_create_item()
-        # Add more tests
 
-if __name__ == "__main__":
-    tester = BackendTester()
-    tester.run_all_tests()
+def test_health_check():
+    client = TestClient(app)
+    response = client.get("/api/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello World"}
 ```
 
 ## Database
@@ -154,4 +138,6 @@ MONGO_URL, DB_NAME, JWT_SECRET_KEY, CORS_ORIGINS
 ## Run Commands
 Backend: `uvicorn server:app --reload`
 Frontend: `bun start`
-Tests: `cd backend && python tests/test_agents.py` - See [HOW_TO_TEST.md](../HOW_TO_TEST.md) for testing patterns
+Tests: `cd backend && pytest`
+
+See [AI Agents Documentation](./aiagent.md) and [LangGraph MCP Integration](../backend/LANGGRAPH_MCP_INTEGRATION.md) for details.

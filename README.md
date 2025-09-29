@@ -7,6 +7,20 @@ pip install -r requirements.txt
 uvicorn server:app --reload
 ```
 
+### Required Environment
+- `MONGO_URL`: MongoDB connection string
+- `DB_NAME`: Database name
+- `LITELLM_AUTH_TOKEN`, `LITELLM_BASE_URL`, `AI_MODEL_NAME`: LiteLLM configuration
+- Optional: `CODEXHUB_MCP_AUTH_TOKEN` for MCP tool access
+
+### Running the API Tests
+Unit tests mock external services and use FastAPI's `TestClient`:
+```bash
+cd backend
+pytest
+```
+Integration smoke scripts that hit live services were removed; reach for manual calls when you need them.
+
 ## Frontend  
 ```bash
 cd frontend

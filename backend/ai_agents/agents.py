@@ -34,7 +34,7 @@ class AgentResponse(BaseModel):
     # Standard response format
     success: bool
     content: str
-    metadata: Dict[str, Any] = {}
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     error: Optional[str] = None
 
 
@@ -70,9 +70,9 @@ class BaseAgent:
         # Setup MCP servers and load tools
         try:
             # Initialize MCP client with server configs (dict of server name -> config)
-            logger.info(f"Setting up MCP with configs: {server_configs}")
+            logger.debug("Setting up MCP with configs: %s", server_configs)
             self.mcp_client = MultiServerMCPClient(server_configs)
-            
+
             # Get tools as LangChain tools (this is async!)
             if self.mcp_client:
                 tools_result = await self.mcp_client.get_tools()
@@ -86,9 +86,12 @@ class BaseAgent:
                 else:
                     self.mcp_tools = list(tools_result) if tools_result else []
                     
-                logger.info(f"MCP setup complete with {len(self.mcp_tools)} tools loaded")
+                logger.info("MCP setup complete with %s tools", len(self.mcp_tools))
                 if self.mcp_tools:
-                    logger.info(f"Tool names: {[getattr(t, 'name', 'unknown') for t in self.mcp_tools]}")
+                    logger.debug(
+                        "Tool names: %s",
+                        [getattr(tool, "name", "unknown") for tool in self.mcp_tools],
+                    )
             else:
                 self.mcp_tools = []
         except Exception as e:
@@ -135,8 +138,8 @@ class BaseAgent:
                     for msg in response_messages
                 )
                 
-                logger.info(f"Agent executed. Tools called: {tools_called}")
-                logger.info(f"Response messages: {len(response_messages)}")
+                logger.debug("Agent executed. Tools called: %s", tools_called)
+                logger.debug("Response messages: %s", len(response_messages))
                 
                 return AgentResponse(
                     success=True,
@@ -150,7 +153,11 @@ class BaseAgent:
                 )
             else:
                 # LLM without tools
-                logger.warning(f"No tools available. MCP client: {self.mcp_client is not None}, Tools: {len(self.mcp_tools)}")
+                logger.debug(
+                    "No tools available. MCP client: %s, Tools: %s",
+                    self.mcp_client is not None,
+                    len(self.mcp_tools),
+                )
                 response = await self.llm.ainvoke(messages)
                 return AgentResponse(
                     success=True,
