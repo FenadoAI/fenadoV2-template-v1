@@ -454,21 +454,21 @@ The backend server exposes these endpoints:
 
 - **`POST /api/chat`** - Chat with conversational agent
   ```bash
-  curl -X POST http://localhost:8000/api/chat \
+  curl -X POST http://localhost:8001/api/chat \
     -H "Content-Type: application/json" \
     -d '{"message": "Hello, how are you?"}'
   ```
 
 - **`POST /api/search`** - Web search with AI agent
   ```bash
-  curl -X POST http://localhost:8000/api/search \
+  curl -X POST http://localhost:8001/api/search \
     -H "Content-Type: application/json" \
     -d '{"query": "Latest AI news"}'
   ```
 
 - **`GET /api/agents/capabilities`** - List agent capabilities
   ```bash
-  curl http://localhost:8000/api/agents/capabilities
+  curl http://localhost:8001/api/agents/capabilities
   ```
 
 ## Troubleshooting

@@ -41,8 +41,15 @@ Create `backend/.env` with:
 - `AI_MODEL_NAME`: AI model to use (default: gemini-2.5-pro)
 
 ### Frontend Environment Variables
-- `REACT_APP_API_URL`: Backend API URL (default: http://localhost:8000)
-- For production: Set to your deployed backend URL (e.g., https://api.yourdomain.com)
+- `REACT_APP_API_URL`: Backend API URL (default: http://localhost:8001)
+  - For production: Set to your deployed backend URL (e.g., https://api.yourdomain.com)
+
+### Frontend Configuration
+- `MY_HOMEPAGE_URL`: Computed base URL for the website (defined in `App.js`)
+  - Automatically derived from `REACT_APP_API_URL` for preview deployments or falls back to `window.location.origin`
+  - Used for generating shareable links (e.g., profile URLs, product pages)
+  - All share links should be relative to this URL: `${MY_HOMEPAGE_URL}/profile/${username}`
+  - Example: `https://preview-abc123.previewer.live` or `https://www.yourdomain.com`
 
 ## AI Agents
 
@@ -108,32 +115,72 @@ asyncio.run(search_web())
 
 ### Documentation
 
-- 📖 [Image Agent Documentation](docs/image-agent.md) - Complete guide to image generation
+- 📖 [How to Add AI Functionality](docs/how-to-add-ai-functionality.md) - Complete guide to AI agents, image generation, and web search
 - 📖 [LangGraph + MCP Integration](backend/LANGGRAPH_MCP_INTEGRATION.md) - Technical guide
-- 📖 [AI Agent Architecture](docs/aiagent.md) - Agent system architecture
 - 📖 [Tech Stack](docs/techstack.md) - Technology stack overview
+- 📖 [How to Test](HOW_TO_TEST.md) - Testing guide with troubleshooting tips
 
 ## Test
-```bash
-# Test AI agents (includes SearchAgent and ImageAgent)
-cd backend && python tests/test_agents.py
 
-# Test backend API (if server is running)
-cd backend && python tests/test_api.py
+### Quick Test - Run All Tests
+```bash
+# Run all tests with pytest
+cd backend && python -m pytest tests/ -v
+
+# Or run specific test files
+cd backend && python -m pytest tests/test_agents.py -v  # AI agents only
+cd backend && python -m pytest tests/test_api.py -v     # API endpoints only
+```
+
+### AI Agents Tests (No Server Required)
+```bash
+# Option 1: Run with pytest
+cd backend && python -m pytest tests/test_agents.py -v -s
+
+# Option 2: Run directly with formatted output
+cd backend && python tests/test_agents.py
+```
+
+### API Integration Tests (Requires Running Server)
+```bash
+# Terminal 1: Start the server
+cd backend && uvicorn server:app --reload --port 8001
+
+# Terminal 2: Run API tests
+cd backend && python -m pytest tests/test_api.py -v
 ```
 
 ### Expected Test Results
 
-```
-📊 Test Summary:
-  Search Agent:           ✅ PASSED
-  Image Agent:            ✅ PASSED
-  Structured Output:      ✅ PASSED
+**All Tests (pytest):**
+```bash
+6 passed in ~50s
 
-🎉 All AI Agents tests passed!
-✅ MCP tools are properly invoked (not fabricated)
-✅ Structured JSON output working correctly
-✅ Images verified from Google Cloud Storage
+tests/test_agents.py::test_search_agent PASSED           [ 16%]  ✅
+tests/test_agents.py::test_image_agent PASSED            [ 33%]  ✅
+tests/test_api.py::test_root_endpoint PASSED             [ 50%]  ✅
+tests/test_api.py::test_chat_endpoint PASSED             [ 66%]  ✅
+tests/test_api.py::test_search_endpoint PASSED           [ 83%]  ✅
+tests/test_api.py::test_capabilities_endpoint PASSED     [100%] ✅
+```
+
+**AI Agents Tests (direct execution):**
+```
+🤖 AI AGENTS TEST SUITE
+============================================================
+🔍 Testing SearchAgent...
+  ✅ Search Agent PASSED
+     Tools used: True
+     Tool calls: 1
+
+🎨 Testing ImageAgent...
+  ✅ Image Agent PASSED
+     Tools used: True
+     Tool calls: 1
+     Image URL: https://storage.googleapis.com/...
+     HTTP Status: 200
+
+🎉 ALL TESTS PASSED!
 ```
 
 **What the tests verify:**
@@ -141,4 +188,17 @@ cd backend && python tests/test_api.py
 - ✅ Real web search results (not from training data)
 - ✅ Real image URLs from Google Cloud Storage
 - ✅ HTTP 200 verification for image accessibility
-- ✅ Structured JSON output with Pydantic validation
+- ✅ FastAPI endpoints work correctly
+- ✅ Agent capabilities are properly reported
+
+### Recent Fixes
+
+**Test Suite Improvements:**
+- ✅ Fixed authentication error handling (401 Unauthorized) - requires valid `LITELLM_AUTH_TOKEN` starting with 'sk-'
+- ✅ Fixed test assertion bug in `test_search_endpoint` (string comparison issue)
+- ✅ Fixed async test compatibility with pytest (added `@pytest.mark.asyncio` decorators)
+- ✅ Added enhanced logging for MCP tool usage tracking (`tool_call_count` in metadata)
+- ✅ Improved test output with formatted results and verification details
+- ✅ Comprehensive troubleshooting section in `HOW_TO_TEST.md`
+
+All 6 tests now pass consistently with both pytest and direct execution. See `HOW_TO_TEST.md` for detailed troubleshooting guide.

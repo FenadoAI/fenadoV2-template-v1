@@ -19,12 +19,19 @@ bun start
 ```
 
 ### Testing
-```bash
-# Test AI agents functionality
-cd backend && python tests/test_agents.py
 
-# Test FastAPI endpoints
-cd backend && python tests/test_api.py
+**AI Agents Tests (No Server Required):**
+```bash
+cd backend && python tests/test_agents.py
+```
+
+**API Integration Tests (Requires Running Server):**
+```bash
+# Terminal 1: Start server first
+cd backend && uvicorn server:app --reload --port 8001
+
+# Terminal 2: Run API tests
+cd backend && python -m pytest tests/test_api.py -v
 ```
 
 ### Code Quality
@@ -56,8 +63,13 @@ bun test
 - **React 19** with React Router v7
 - **UI Framework**: shadcn/ui components built on Radix UI
 - **Styling**: Tailwind CSS with custom configuration via craco
-- **API Communication**: Axios with `REACT_APP_API_URL` (defaults to http://localhost:8000)
+- **API Communication**: Axios with `REACT_APP_API_URL` (defaults to http://localhost:8001)
 - **Components**: Located in `/src/components/ui/` with consistent import pattern `@/components/ui/`
+- **Configuration in App.js**:
+  - `MY_HOMEPAGE_URL`: Computed base URL for shareable links (derived from `API_BASE` or `window.location.origin`)
+  - Use for share links: `${MY_HOMEPAGE_URL}/profile/${username}`
+- **Environment Variables**:
+  - `REACT_APP_API_URL`: Backend API URL
 
 ### Database
 - **MongoDB** with collections: users, items, status_checks
@@ -107,8 +119,8 @@ response = await agent.execute("What is the capital of France?", use_tools=True)
 ```
 
 #### Testing
-- **AI Functionality**: `cd backend && python tests/test_agents.py` - Tests real web search
-- **API Endpoints**: `cd backend && python tests/test_api.py` - Tests FastAPI integration
+- **AI Functionality**: `cd backend && python tests/test_agents.py` - Tests real web search and image generation (standalone, no server required)
+- **API Endpoints**: `cd backend && python -m pytest tests/test_api.py -v` - Tests FastAPI integration (requires server running on port 8001)
 - **Real Tests**: All tests can fail if functionality is broken (no fake passes)
 
 ## Documentation Structure
@@ -127,20 +139,20 @@ Complete technical stack reference including:
 - **Run Commands**: Standard commands for backend, frontend, and testing
 - **LiteLLM Integration**: Links to AI agents documentation for detailed implementation
 
-#### `docs/aiagent.md` 
+#### `docs/how-to-add-ai-functionality.md` 
 Comprehensive AI agents library documentation including:
 - **Architecture Overview**: SOLID principles, extensible design patterns
 - **LiteLLM Integration**: Detailed proxy configuration and model selection
-- **Token Architecture**: Separation of LITELLM_AUTH_TOKEN and MCP_AUTH_TOKEN
-- **Supported Models**: Complete list with performance characteristics and use cases
-- **Environment Structure**: Provider-specific variable mapping (OPENAI_API_KEY, etc.)
-- **MCP Integration**: Model Context Protocol setup for external tools with dedicated authentication
-- **Custom Agent Development**: Inheritance patterns and extension examples
-- **FastAPI Integration**: Complete API endpoint implementation
-- **Production Deployment**: Security, performance, and monitoring considerations
-- **Advanced Examples**: Multi-agent systems, custom MCP servers, specialized agents
-- **Configuration Reference**: Complete environment variable documentation with workflow inputs
-- **Troubleshooting**: Common issues and solutions for development and production
+- **Supported Models**: Complete list of Gemini and Claude models with use cases
+- **Environment Setup**: All required environment variables and dependencies
+- **Agent Types**: ChatAgent, SearchAgent, ImageAgent, and custom agent development
+- **MCP Integration**: Web search and image generation with CodexHub MCP services
+- **Image Generation**: LangGraph-powered workflow with guaranteed tool execution
+- **API Endpoints**: FastAPI integration with chat, search, and capabilities endpoints
+- **Best Practices**: Prompt engineering, error handling, tool verification
+- **Troubleshooting**: Common issues and solutions for MCP, LangGraph, and tool usage
+- **API Reference**: Complete class documentation with examples
+- **Testing**: Test patterns and verification strategies
 
 #### `HOW_TO_TEST.md`
 Testing methodology and patterns including:
@@ -148,6 +160,13 @@ Testing methodology and patterns including:
 - **Test Types**: API integration, business logic, AI agents, database, endpoints
 - **Anti-Patterns**: What NOT to do when writing tests
 - **Good Practices**: Proper assertion patterns and failure scenarios
+- **Troubleshooting Section**: Common test failures and solutions
+  - Authentication errors (401 Unauthorized)
+  - Test assertion bugs (string comparison)
+  - MCP tool usage patterns (when tools are invoked)
+  - Connection errors and graceful degradation
+  - Environment verification commands
+  - Debug logging for tool usage
 
 ## Environment Configuration
 

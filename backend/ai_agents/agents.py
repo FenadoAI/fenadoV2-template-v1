@@ -114,6 +114,8 @@ class BaseAgent:
                 # Use LangGraph's create_react_agent (simple form)
                 from langgraph.prebuilt import create_react_agent
                 
+                logger.info(f"Creating agent with {len(self.mcp_tools)} tools")
+                
                 # Create LangGraph agent with tools (no checkpointer for simplicity)
                 agent = create_react_agent(
                     self.llm,
@@ -138,8 +140,18 @@ class BaseAgent:
                     for msg in response_messages
                 )
                 
-                logger.debug("Agent executed. Tools called: %s", tools_called)
-                logger.debug("Response messages: %s", len(response_messages))
+                # Count tool invocations
+                tool_call_count = sum(
+                    len(msg.tool_calls) if hasattr(msg, "tool_calls") and msg.tool_calls else 0
+                    for msg in response_messages
+                )
+                
+                logger.info(f"Agent executed. Tools called: {tools_called}, Tool call count: {tool_call_count}")
+                logger.debug(f"Response messages: {len(response_messages)}")
+                
+                # Log message types for debugging
+                for i, msg in enumerate(response_messages):
+                    logger.debug(f"Message {i}: {type(msg).__name__}, has tool_calls: {hasattr(msg, 'tool_calls')}")
                 
                 return AgentResponse(
                     success=True,
@@ -148,6 +160,7 @@ class BaseAgent:
                         "model": self.config.model_name,
                         "tools_available": len(self.mcp_tools),
                         "tools_used": tools_called,
+                        "tool_call_count": tool_call_count,
                         "message_count": len(response_messages)
                     }
                 )

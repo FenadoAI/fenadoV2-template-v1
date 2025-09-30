@@ -4,7 +4,7 @@
 FastAPI, Python 3.8+, Motor (AsyncIOMotorClient), MongoDB, Pydantic
 
 ### AI Agents
-Extensible AI agents built with **LangGraph** and **MCP (Model Context Protocol)** for building verified, intelligent services. Features real-time web search, image generation with HTTP verification, and structured JSON output. See [AI Agents Documentation](./aiagent.md) for detailed implementation guide.
+Extensible AI agents built with **LangGraph** and **MCP (Model Context Protocol)** for building verified, intelligent services. Features real-time web search, image generation with HTTP verification, and structured JSON output. See [AI Agents Documentation](./how-to-add-ai-functionality.md) for detailed implementation guide.
 
 **Key Features:**
 - LangGraph-powered agent orchestration
@@ -93,7 +93,7 @@ import { Card } from '@/components/ui/card'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000'
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001'
 
 export function MyComponent() {
   const [data, setData] = useState([])
@@ -114,6 +114,30 @@ export function MyComponent() {
 }
 ```
 
+### Frontend Configuration (App.js)
+
+**`MY_HOMEPAGE_URL`** - Base URL where the website is hosted (computed in App.js)
+- Automatically derived from `API_BASE` URL or falls back to `window.location.origin`
+- Used for generating absolute share links
+- All shareable URLs should be relative to this base URL
+- Example usage:
+  ```javascript
+  // In App.js (lines 11-13)
+  const MY_HOMEPAGE_URL = API_BASE?.match(/-([a-z0-9]+)\./)?.[1]
+    ? `https://${API_BASE?.match(/-([a-z0-9]+)\./)?.[1]}.previewer.live`
+    : window.location.origin;
+  
+  // Use for share links:
+  const profileShareUrl = `${MY_HOMEPAGE_URL}/profile/${username}`
+  const productShareUrl = `${MY_HOMEPAGE_URL}/product/${productId}`
+  ```
+
+### Frontend Environment Variables
+
+**`REACT_APP_API_URL`** - Backend API URL (default: `http://localhost:8001`)
+- Used for all API requests to the backend
+- Also used to compute `MY_HOMEPAGE_URL` for preview deployments
+
 ## Test Pattern
 ```python
 import pytest
@@ -133,11 +157,19 @@ def test_health_check():
 MongoDB, collections: users, items, status_checks
 
 ## Environment Variables
-MONGO_URL, DB_NAME, JWT_SECRET_KEY, CORS_ORIGINS
+
+### Backend
+MONGO_URL, DB_NAME, JWT_SECRET_KEY, CORS_ORIGINS, LITELLM_AUTH_TOKEN, CODEXHUB_MCP_AUTH_TOKEN, AI_MODEL_NAME
+
+### Frontend
+REACT_APP_API_URL
+
+**Note:** `MY_HOMEPAGE_URL` is not an environment variable - it's computed in `App.js` based on the API URL or `window.location.origin`.
 
 ## Run Commands
-Backend: `uvicorn server:app --reload`
-Frontend: `bun start`
-Tests: `cd backend && pytest`
+**Backend:** `cd backend && uvicorn server:app --reload --port 8001`
+**Frontend:** `cd frontend && bun start`
+**Tests (AI Agents):** `cd backend && python tests/test_agents.py` (no server required)
+**Tests (API):** `cd backend && pytest tests/test_api.py -v` (requires running server)
 
-See [AI Agents Documentation](./aiagent.md) and [LangGraph MCP Integration](../backend/LANGGRAPH_MCP_INTEGRATION.md) for details.
+See [AI Agents Documentation](./how-to-add-ai-functionality.md) and [LangGraph MCP Integration](../backend/LANGGRAPH_MCP_INTEGRATION.md) for details.
